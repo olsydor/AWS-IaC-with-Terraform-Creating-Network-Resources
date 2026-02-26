@@ -68,3 +68,62 @@ output "network_summary" {
     route_table_name = aws_route_table.public.tags["Name"]
   }
 }
+
+# SSH Key Pair Output
+output "key_pair_id" {
+  description = "The name of the SSH key pair"
+  value       = aws_key_pair.cmtr-5bc36296-keypair.key_name
+}
+
+output "key_pair_fingerprint" {
+  description = "The fingerprint of the SSH key pair"
+  value       = aws_key_pair.cmtr-5bc36296-keypair.fingerprint
+}
+
+# Security Group Output
+output "security_group_id" {
+  description = "The ID of the security group"
+  value       = aws_security_group.cmtr-5bc36296-sg.id
+}
+
+output "security_group_name" {
+  description = "The name of the security group"
+  value       = aws_security_group.cmtr-5bc36296-sg.name
+}
+
+# EC2 Instance Outputs
+output "ec2_instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.cmtr-5bc36296-ec2.id
+}
+
+output "ec2_instance_public_ip" {
+  description = "The public IP address of the EC2 instance"
+  value       = aws_instance.cmtr-5bc36296-ec2.public_ip
+}
+
+output "ec2_instance_public_dns" {
+  description = "The public DNS name of the EC2 instance"
+  value       = aws_instance.cmtr-5bc36296-ec2.public_dns
+}
+
+output "ec2_instance_private_ip" {
+  description = "The private IP address of the EC2 instance"
+  value       = aws_instance.cmtr-5bc36296-ec2.private_ip
+}
+
+output "ec2_instance_key_name" {
+  description = "The key pair name associated with the EC2 instance"
+  value       = aws_instance.cmtr-5bc36296-ec2.key_name
+}
+
+output "ssh_access_summary" {
+  description = "Summary of SSH access information for the EC2 instance"
+  value = {
+    instance_id     = aws_instance.cmtr-5bc36296-ec2.id
+    public_ip       = aws_instance.cmtr-5bc36296-ec2.public_ip
+    key_pair_name   = aws_key_pair.cmtr-5bc36296-keypair.key_name
+    security_group  = aws_security_group.cmtr-5bc36296-sg.name
+    ssh_command     = "ssh -i <private-key-file> ec2-user@${aws_instance.cmtr-5bc36296-ec2.public_ip}"
+  }
+}

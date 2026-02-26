@@ -86,3 +86,8 @@ variable "enable_public_ip_on_launch" {
   description = "Enable automatic public IP assignment for instances launched in public subnets"
   default     = true
 }
+variable "ssh_key" {
+  type        = string
+  description = "Provides custom public SSH key."
+  sensitive   = true
+}
