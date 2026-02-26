@@ -120,10 +120,10 @@ output "ec2_instance_key_name" {
 output "ssh_access_summary" {
   description = "Summary of SSH access information for the EC2 instance"
   value = {
-    instance_id     = aws_instance.cmtr-5bc36296-ec2.id
-    public_ip       = aws_instance.cmtr-5bc36296-ec2.public_ip
-    key_pair_name   = aws_key_pair.cmtr-5bc36296-keypair.key_name
-    security_group  = aws_security_group.cmtr-5bc36296-sg.name
-    ssh_command     = "ssh -i <private-key-file> ec2-user@${aws_instance.cmtr-5bc36296-ec2.public_ip}"
+    instance_id    = aws_instance.cmtr-5bc36296-ec2.id
+    public_ip      = aws_instance.cmtr-5bc36296-ec2.public_ip
+    key_pair_name  = aws_key_pair.cmtr-5bc36296-keypair.key_name
+    security_group = aws_security_group.cmtr-5bc36296-sg.name
+    ssh_command    = "ssh -i <private-key-file> ec2-user@${aws_instance.cmtr-5bc36296-ec2.public_ip}"
   }
 }
