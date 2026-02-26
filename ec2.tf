@@ -4,6 +4,7 @@
 resource "aws_security_group" "cmtr-5bc36296-sg" {
   name        = "cmtr-5bc36296-sg"
   description = "Security group for cmtr-5bc36296-ec2 instance"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port   = 22
