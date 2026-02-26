@@ -86,9 +86,13 @@ variable "enable_public_ip_on_launch" {
   description = "Enable automatic public IP assignment for instances launched in public subnets"
   default     = true
 }
-
 variable "ssh_key" {
   type        = string
   description = "Provides custom public SSH key."
   sensitive   = true
+
+  validation {
+    condition     = can(regex("^ssh-(rsa|ed25519|dss|ecdsa-sha2-nistp256|ecdsa-sha2-nistp384|ecdsa-sha2-nistp521)\\s+", var.ssh_key))
+    error_message = "SSH key must be a valid OpenSSH public key format starting with 'ssh-rsa', 'ssh-ed25519', 'ssh-dss', or 'ecdsa-sha2-*' and be on a single line without extra whitespace."
+  }
 }
