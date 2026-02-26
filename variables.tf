@@ -90,4 +90,5 @@ variable "ssh_key" {
   type        = string
   description = "Provides custom public SSH key."
   sensitive   = true
+  default     = "cmtr-5bc36296-keypair"
 }
