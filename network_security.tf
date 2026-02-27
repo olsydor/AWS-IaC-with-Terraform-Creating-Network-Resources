@@ -12,6 +12,8 @@ provider "aws" {
 }
 
 data "aws_network_interfaces" "public_eni" {
+  count = var.public_instance_id != "" ? 1 : 0
+
   filter {
     name   = "attachment.instance-id"
     values = [var.public_instance_id]
@@ -24,6 +26,8 @@ data "aws_network_interfaces" "public_eni" {
 }
 
 data "aws_network_interfaces" "private_eni" {
+  count = var.private_instance_id != "" ? 1 : 0
+
   filter {
     name   = "attachment.instance-id"
     values = [var.private_instance_id]
@@ -123,8 +127,8 @@ resource "aws_security_group_rule" "private_http_ingress_icmp" {
 }
 
 locals {
-  public_eni_id  = tolist(data.aws_network_interfaces.public_eni.ids)[0]
-  private_eni_id = tolist(data.aws_network_interfaces.private_eni.ids)[0]
+  public_eni_id  = try(tolist(data.aws_network_interfaces.public_eni[0].ids)[0], "")
+  private_eni_id = try(tolist(data.aws_network_interfaces.private_eni[0].ids)[0], "")
 }
 
 resource "aws_network_interface_sg_attachment" "public_ssh" {
