@@ -11,32 +11,14 @@ provider "aws" {
   region = var.aws_region
 }
 
-data "aws_network_interface" "public_eni" {
-  count = var.public_instance_id != "" ? 1 : 0
-
-  filter {
-    name   = "attachment.instance-id"
-    values = [var.public_instance_id]
-  }
-
-  filter {
-    name   = "attachment.device-index"
-    values = ["0"]
-  }
+data "aws_instance" "public" {
+  count       = var.public_instance_id != "" ? 1 : 0
+  instance_id = var.public_instance_id
 }
 
-data "aws_network_interface" "private_eni" {
-  count = var.private_instance_id != "" ? 1 : 0
-
-  filter {
-    name   = "attachment.instance-id"
-    values = [var.private_instance_id]
-  }
-
-  filter {
-    name   = "attachment.device-index"
-    values = ["0"]
-  }
+data "aws_instance" "private" {
+  count       = var.private_instance_id != "" ? 1 : 0
+  instance_id = var.private_instance_id
 }
 
 resource "aws_security_group" "ssh" {
@@ -127,8 +109,8 @@ resource "aws_security_group_rule" "private_http_ingress_icmp" {
 }
 
 locals {
-  public_eni_id  = try(data.aws_network_interface.public_eni[0].id, "")
-  private_eni_id = try(data.aws_network_interface.private_eni[0].id, "")
+  public_eni_id  = try(data.aws_instance.public[0].network_interface_id, "")
+  private_eni_id = try(data.aws_instance.private[0].network_interface_id, "")
 }
 
 resource "aws_network_interface_sg_attachment" "public_ssh" {
