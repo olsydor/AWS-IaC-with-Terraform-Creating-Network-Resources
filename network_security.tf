@@ -11,6 +11,29 @@ provider "aws" {
   region = var.aws_region
 }
 
+data "aws_network_interfaces" "public_eni" {
+  filter {
+    name   = "attachment.instance-id"
+    values = [var.public_instance_id]
+  }
+
+  filter {
+    name   = "attachment.device-index"
+    values = ["0"]
+  }
+}
+
+data "aws_network_interfaces" "private_eni" {
+  filter {
+    name   = "attachment.instance-id"
+    values = [var.private_instance_id]
+  }
+
+  filter {
+    name   = "attachment.device-index"
+    values = ["0"]
+  }
+}
 
 resource "aws_security_group" "ssh" {
   name        = "${var.project_id}-ssh-sg"
@@ -101,20 +124,20 @@ resource "aws_security_group_rule" "private_http_ingress_icmp" {
 
 resource "aws_network_interface_sg_attachment" "public_ssh" {
   security_group_id    = aws_security_group.ssh.id
-  network_interface_id = var.public_network_interface_id
+  network_interface_id = data.aws_network_interfaces.public_eni.ids[0]
 }
 
 resource "aws_network_interface_sg_attachment" "public_http" {
   security_group_id    = aws_security_group.public_http.id
-  network_interface_id = var.public_network_interface_id
+  network_interface_id = data.aws_network_interfaces.public_eni.ids[0]
 }
 
 resource "aws_network_interface_sg_attachment" "private_ssh" {
   security_group_id    = aws_security_group.ssh.id
-  network_interface_id = var.private_network_interface_id
+  network_interface_id = data.aws_network_interfaces.private_eni.ids[0]
 }
 
 resource "aws_network_interface_sg_attachment" "private_http" {
   security_group_id    = aws_security_group.private_http.id
-  network_interface_id = var.private_network_interface_id
+  network_interface_id = data.aws_network_interfaces.private_eni.ids[0]
 }

@@ -44,15 +44,3 @@ variable "project_id" {
   type        = string
   default     = "cmtr-5bc36296"
 }
-
-variable "public_network_interface_id" {
-  description = "Primary network interface ID of the public EC2 instance"
-  type        = string
-  default     = ""
-}
-
-variable "private_network_interface_id" {
-  description = "Primary network interface ID of the private EC2 instance"
-  type        = string
-  default     = ""
-}
