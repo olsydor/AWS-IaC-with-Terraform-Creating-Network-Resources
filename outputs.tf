@@ -3,6 +3,11 @@ output "vpc_id" {
   value       = aws_vpc.main.id
 }
 
+output "vpc_cidr" {
+  description = "The CIDR block associated with the VPC"
+  value       = aws_vpc.main.cidr_block
+}
+
 output "vpc_name" {
   description = "The name of the VPC"
   value       = aws_vpc.main.tags["Name"]
@@ -28,6 +33,16 @@ output "public_subnet_ids" {
   value       = aws_subnet.public[*].id
 }
 
+output "public_subnet_cidr_block" {
+  description = "Set of CIDR blocks for all public subnets"
+  value       = toset(aws_subnet.public[*].cidr_block)
+}
+
+output "public_subnet_availability_zone" {
+  description = "Set of availability zones for all public subnets"
+  value       = toset(aws_subnet.public[*].availability_zone)
+}
+
 output "public_subnet_info" {
   description = "Detailed information about public subnets"
   value = [
@@ -42,6 +57,11 @@ output "public_subnet_info" {
 
 output "public_route_table_id" {
   description = "The ID of the route table for public subnets"
+  value       = aws_route_table.public.id
+}
+
+output "routing_table_id" {
+  description = "The unique identifier of the routing table"
   value       = aws_route_table.public.id
 }
 
