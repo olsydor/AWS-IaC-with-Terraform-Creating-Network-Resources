@@ -109,8 +109,8 @@ resource "aws_security_group_rule" "private_http_ingress_icmp" {
 }
 
 locals {
-  public_eni_id  = var.public_network_interface_id != "" ? var.public_network_interface_id : try(data.aws_instance.public[0].network_interface_id, "")
-  private_eni_id = var.private_network_interface_id != "" ? var.private_network_interface_id : try(data.aws_instance.private[0].network_interface_id, "")
+  public_eni_id  = try(data.aws_instance.public[0].network_interface_id, "")
+  private_eni_id = try(data.aws_instance.private[0].network_interface_id, "")
 }
 
 resource "aws_network_interface_sg_attachment" "public_ssh" {
