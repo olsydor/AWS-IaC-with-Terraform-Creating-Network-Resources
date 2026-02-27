@@ -37,3 +37,13 @@ variable "project_id" {
   description = "Project identifier used for naming and tagging"
   type        = string
 }
+
+variable "public_network_interface_id" {
+  description = "Primary network interface ID of the public EC2 instance"
+  type        = string
+}
+
+variable "private_network_interface_id" {
+  description = "Primary network interface ID of the private EC2 instance"
+  type        = string
+}
