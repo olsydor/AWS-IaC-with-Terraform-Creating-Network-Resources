@@ -11,7 +11,7 @@ provider "aws" {
   region = var.aws_region
 }
 
-data "aws_network_interface" "public_primary" {
+data "aws_network_interfaces" "public_primary" {
   filter {
     name   = "attachment.instance-id"
     values = [var.public_instance_id]
@@ -23,7 +23,7 @@ data "aws_network_interface" "public_primary" {
   }
 }
 
-data "aws_network_interface" "private_primary" {
+data "aws_network_interfaces" "private_primary" {
   filter {
     name   = "attachment.instance-id"
     values = [var.private_instance_id]
@@ -35,6 +35,10 @@ data "aws_network_interface" "private_primary" {
   }
 }
 
+locals {
+  public_primary_network_interface_id  = try(data.aws_network_interfaces.public_primary.ids[0], null)
+  private_primary_network_interface_id = try(data.aws_network_interfaces.private_primary.ids[0], null)
+}
 resource "aws_security_group" "ssh" {
   name        = "${var.project_id}-ssh-sg"
   description = "Allow SSH and ICMP from allowed IP range"
@@ -123,21 +127,29 @@ resource "aws_security_group_rule" "private_http_ingress_icmp" {
 }
 
 resource "aws_network_interface_sg_attachment" "public_ssh" {
+  count = local.public_primary_network_interface_id != null ? 1 : 0
+
   security_group_id    = aws_security_group.ssh.id
-  network_interface_id = data.aws_network_interface.public_primary.id
+  network_interface_id = local.public_primary_network_interface_id
 }
 
 resource "aws_network_interface_sg_attachment" "public_http" {
+  count = local.public_primary_network_interface_id != null ? 1 : 0
+
   security_group_id    = aws_security_group.public_http.id
-  network_interface_id = data.aws_network_interface.public_primary.id
+  network_interface_id = local.public_primary_network_interface_id
 }
 
 resource "aws_network_interface_sg_attachment" "private_ssh" {
+  count = local.private_primary_network_interface_id != null ? 1 : 0
+
   security_group_id    = aws_security_group.ssh.id
-  network_interface_id = data.aws_network_interface.private_primary.id
+  network_interface_id = local.private_primary_network_interface_id
 }
 
 resource "aws_network_interface_sg_attachment" "private_http" {
+  count = local.private_primary_network_interface_id != null ? 1 : 0
+
   security_group_id    = aws_security_group.private_http.id
-  network_interface_id = data.aws_network_interface.private_primary.id
+  network_interface_id = local.private_primary_network_interface_id
 }
