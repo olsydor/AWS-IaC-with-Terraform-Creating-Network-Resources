@@ -4,6 +4,22 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "project_id" {
+  type        = string
+  description = "Project identifier used for resource tagging"
+  default     = "cmtr-5bc36296"
+}
+
+variable "state_bucket" {
+  type        = string
+  description = "S3 bucket name that stores remote Terraform state"
+}
+
+variable "state_key" {
+  type        = string
+  description = "S3 object key path for the remote Terraform state file"
+}
+
 variable "vpc_name" {
   type        = string
   description = "Name of the VPC"
