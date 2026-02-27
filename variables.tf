@@ -33,6 +33,18 @@ variable "private_instance_id" {
   default     = ""
 }
 
+variable "public_network_interface_id" {
+  description = "ID of the pre-created public network interface"
+  type        = string
+  default     = ""
+}
+
+variable "private_network_interface_id" {
+  description = "ID of the pre-created private network interface"
+  type        = string
+  default     = ""
+}
+
 variable "aws_region" {
   description = "AWS region where resources are managed"
   type        = string
