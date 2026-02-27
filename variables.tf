@@ -13,11 +13,13 @@ variable "project_id" {
 variable "state_bucket" {
   type        = string
   description = "S3 bucket name that stores remote Terraform state"
+  default     = "cmtr-5bc36296-tf-state-1772234162"
 }
 
 variable "state_key" {
   type        = string
   description = "S3 object key path for the remote Terraform state file"
+  default     = "infra.tfstate"
 }
 
 variable "vpc_name" {
