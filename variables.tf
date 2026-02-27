@@ -22,6 +22,12 @@ variable "state_key" {
   default     = "infra.tfstate"
 }
 
+variable "enable_legacy_resources" {
+  type        = bool
+  description = "Enable legacy resources from previous labs in this repository."
+  default     = false
+}
+
 variable "vpc_name" {
   type        = string
   description = "Name of the VPC"
