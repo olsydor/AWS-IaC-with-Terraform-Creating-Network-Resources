@@ -92,3 +92,33 @@ variable "ssh_key" {
   sensitive   = true
   default     = "cmtr-5bc36296-keypair"
 }
+
+variable "allowed_ip_range" {
+  type        = list(string)
+  description = "List of IP address ranges allowed for secure access."
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "ID of the pre-created VPC."
+}
+
+variable "public_subnet_id" {
+  type        = string
+  description = "ID of the pre-created public subnet."
+}
+
+variable "private_subnet_id" {
+  type        = string
+  description = "ID of the pre-created private subnet."
+}
+
+variable "public_instance_id" {
+  type        = string
+  description = "ID of the pre-created public EC2 instance."
+}
+
+variable "private_instance_id" {
+  type        = string
+  description = "ID of the pre-created private EC2 instance."
+}
