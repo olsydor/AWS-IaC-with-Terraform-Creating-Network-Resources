@@ -115,8 +115,9 @@ resource "aws_launch_template" "app" {
   }
 
   network_interfaces {
-    security_groups       = [data.aws_security_group.ec2_ssh.id, data.aws_security_group.ec2_http.id]
-    delete_on_termination = true
+    security_groups             = [data.aws_security_group.ec2_ssh.id, data.aws_security_group.ec2_http.id]
+    delete_on_termination       = true
+    associate_public_ip_address = true
   }
 
   metadata_options {
@@ -136,13 +137,11 @@ resource "aws_launch_template" "app" {
     INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/instance-id")
     PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/local-ipv4")
 
-    MESSAGE="This message was generated on instance $INSTANCE_ID with the following IP: $PRIVATE_IP"
-    echo "$MESSAGE" > /var/www/html/index.html
+    cat > /var/www/html/index.html <<EOF
+    This message was generated on instance $INSTANCE_ID with the following IP: $PRIVATE_IP
+    EOF
 
-    if [ -n "${var.artifact_bucket_name}" ]; then
-      echo "$MESSAGE" > /tmp/instance-info.txt
-      aws s3 cp /tmp/instance-info.txt "s3://${var.artifact_bucket_name}/$INSTANCE_ID.txt" || true
-    fi
+    systemctl restart httpd
   EOT
   )
 
@@ -204,7 +203,7 @@ resource "aws_autoscaling_group" "app" {
   min_size         = 1
   max_size         = 2
 
-  vpc_zone_identifier = [data.aws_subnet.private_a.id, data.aws_subnet.private_b.id]
+  vpc_zone_identifier = [data.aws_subnet.public_a.id, data.aws_subnet.public_b.id]
   target_group_arns   = [aws_lb_target_group.app.arn]
 
   launch_template {
