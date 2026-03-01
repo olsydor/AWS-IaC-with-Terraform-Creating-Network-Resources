@@ -14,4 +14,8 @@ resource "aws_iam_policy" "custom_policy" {
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
