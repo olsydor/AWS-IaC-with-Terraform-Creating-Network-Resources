@@ -1,9 +1,9 @@
-output "remote_state_instance_id" {
-  description = "ID of the EC2 instance created using remote state outputs"
-  value       = try(aws_instance.remote_state_ec2[0].id, null)
+output "load_balancer_dns_name" {
+  description = "DNS name of the application load balancer"
+  value       = aws_lb.app.dns_name
 }
 
-output "remote_state_instance_public_ip" {
-  description = "Public IP of the EC2 instance created using remote state outputs"
-  value       = try(aws_instance.remote_state_ec2[0].public_ip, null)
+output "autoscaling_group_name" {
+  description = "Name of the application auto scaling group"
+  value       = aws_autoscaling_group.app.name
 }
