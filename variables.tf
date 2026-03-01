@@ -28,6 +28,36 @@ variable "enable_legacy_resources" {
   default     = false
 }
 
+variable "enable_remote_state_lab" {
+  type        = bool
+  description = "Enable resources from the remote state lab in this repository."
+  default     = false
+}
+
+variable "application_ami_id" {
+  type        = string
+  description = "AMI ID used by application instances behind the load balancer."
+  default     = "ami-09e6f87a47903347c"
+}
+
+variable "ssh_key_name" {
+  type        = string
+  description = "Name of existing SSH key pair used by launch template instances."
+  default     = "cmtr-5bc36296-keypair"
+}
+
+variable "instance_profile_name" {
+  type        = string
+  description = "Name of existing IAM instance profile for application instances."
+  default     = "cmtr-5bc36296-instance_profile"
+}
+
+variable "artifact_bucket_name" {
+  type        = string
+  description = "Optional S3 bucket for uploading instance-generated text file at boot."
+  default     = ""
+}
+
 variable "vpc_name" {
   type        = string
   description = "Name of the VPC"

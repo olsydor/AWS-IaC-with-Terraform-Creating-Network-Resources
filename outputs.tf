@@ -1,9 +1,9 @@
 output "remote_state_instance_id" {
   description = "ID of the EC2 instance created using remote state outputs"
-  value       = aws_instance.remote_state_ec2.id
+  value       = try(aws_instance.remote_state_ec2[0].id, null)
 }
 
 output "remote_state_instance_public_ip" {
   description = "Public IP of the EC2 instance created using remote state outputs"
-  value       = aws_instance.remote_state_ec2.public_ip
+  value       = try(aws_instance.remote_state_ec2[0].public_ip, null)
 }

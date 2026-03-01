@@ -1,4 +1,5 @@
 data "aws_ami" "remote_state_amazon_linux_2" {
+  count       = var.enable_remote_state_lab ? 1 : 0
   most_recent = true
   owners      = ["amazon"]
 
@@ -14,10 +15,11 @@ data "aws_ami" "remote_state_amazon_linux_2" {
 }
 
 resource "aws_instance" "remote_state_ec2" {
-  ami                         = data.aws_ami.remote_state_amazon_linux_2.id
+  count                       = var.enable_remote_state_lab ? 1 : 0
+  ami                         = data.aws_ami.remote_state_amazon_linux_2[0].id
   instance_type               = "t2.micro"
-  subnet_id                   = data.terraform_remote_state.base_infra.outputs.public_subnet_id
-  vpc_security_group_ids      = [data.terraform_remote_state.base_infra.outputs.security_group_id]
+  subnet_id                   = data.terraform_remote_state.base_infra[0].outputs.public_subnet_id
+  vpc_security_group_ids      = [data.terraform_remote_state.base_infra[0].outputs.security_group_id]
   associate_public_ip_address = true
 
   tags = {

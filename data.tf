@@ -1,4 +1,5 @@
 data "terraform_remote_state" "base_infra" {
+  count   = var.enable_remote_state_lab ? 1 : 0
   backend = "s3"
 
   config = {
