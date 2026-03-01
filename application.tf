@@ -6,6 +6,8 @@ locals {
 }
 
 data "aws_vpc" "app" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "tag:Name"
     values = ["cmtr-5bc36296-vpc"]
@@ -13,9 +15,11 @@ data "aws_vpc" "app" {
 }
 
 data "aws_subnet" "public_a" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 
   filter {
@@ -25,9 +29,11 @@ data "aws_subnet" "public_a" {
 }
 
 data "aws_subnet" "private_a" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 
   filter {
@@ -37,9 +43,11 @@ data "aws_subnet" "private_a" {
 }
 
 data "aws_subnet" "public_b" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 
   filter {
@@ -49,9 +57,11 @@ data "aws_subnet" "public_b" {
 }
 
 data "aws_subnet" "private_b" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 
   filter {
@@ -61,6 +71,8 @@ data "aws_subnet" "private_b" {
 }
 
 data "aws_security_group" "ec2_ssh" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "group-name"
     values = ["cmtr-5bc36296-ec2_sg"]
@@ -68,11 +80,13 @@ data "aws_security_group" "ec2_ssh" {
 
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 }
 
 data "aws_security_group" "ec2_http" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "group-name"
     values = ["cmtr-5bc36296-http_sg"]
@@ -80,11 +94,13 @@ data "aws_security_group" "ec2_http" {
 
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 }
 
 data "aws_security_group" "alb" {
+  count = var.enable_application_lab ? 1 : 0
+
   filter {
     name   = "group-name"
     values = ["cmtr-5bc36296-sglb"]
@@ -92,30 +108,33 @@ data "aws_security_group" "alb" {
 
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.app.id]
+    values = [data.aws_vpc.app[0].id]
   }
 }
 
 data "aws_iam_instance_profile" "app" {
-  name = var.instance_profile_name
+  count = var.enable_application_lab ? 1 : 0
+  name  = var.instance_profile_name
 }
 
 data "aws_key_pair" "app" {
+  count    = var.enable_application_lab ? 1 : 0
   key_name = var.ssh_key_name
 }
 
 resource "aws_launch_template" "app" {
+  count         = var.enable_application_lab ? 1 : 0
   name          = "cmtr-5bc36296-template"
   image_id      = var.application_ami_id
   instance_type = "t3.micro"
-  key_name      = data.aws_key_pair.app.key_name
+  key_name      = data.aws_key_pair.app[0].key_name
 
   iam_instance_profile {
-    name = data.aws_iam_instance_profile.app.name
+    name = data.aws_iam_instance_profile.app[0].name
   }
 
   network_interfaces {
-    security_groups             = [data.aws_security_group.ec2_ssh.id, data.aws_security_group.ec2_http.id]
+    security_groups             = [data.aws_security_group.ec2_ssh[0].id, data.aws_security_group.ec2_http[0].id]
     delete_on_termination       = true
     associate_public_ip_address = true
   }
@@ -157,20 +176,22 @@ resource "aws_launch_template" "app" {
 }
 
 resource "aws_lb" "app" {
+  count              = var.enable_application_lab ? 1 : 0
   name               = "cmtr-5bc36296-loadbalancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [data.aws_security_group.alb.id]
-  subnets            = [data.aws_subnet.public_a.id, data.aws_subnet.public_b.id]
+  security_groups    = [data.aws_security_group.alb[0].id]
+  subnets            = [data.aws_subnet.public_a[0].id, data.aws_subnet.public_b[0].id]
 
   tags = local.app_common_tags
 }
 
 resource "aws_lb_target_group" "app" {
+  count    = var.enable_application_lab ? 1 : 0
   name     = "cmtr-5bc36296-tg"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = data.aws_vpc.app.id
+  vpc_id   = data.aws_vpc.app[0].id
 
   health_check {
     path                = "/"
@@ -185,29 +206,31 @@ resource "aws_lb_target_group" "app" {
 }
 
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.app.arn
+  count             = var.enable_application_lab ? 1 : 0
+  load_balancer_arn = aws_lb.app[0].arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
+    target_group_arn = aws_lb_target_group.app[0].arn
   }
 
   tags = local.app_common_tags
 }
 
 resource "aws_autoscaling_group" "app" {
+  count            = var.enable_application_lab ? 1 : 0
   name             = "cmtr-5bc36296-asg"
   desired_capacity = 2
   min_size         = 1
   max_size         = 2
 
-  vpc_zone_identifier = [data.aws_subnet.public_a.id, data.aws_subnet.public_b.id]
-  target_group_arns   = [aws_lb_target_group.app.arn]
+  vpc_zone_identifier = [data.aws_subnet.public_a[0].id, data.aws_subnet.public_b[0].id]
+  target_group_arns   = [aws_lb_target_group.app[0].arn]
 
   launch_template {
-    id      = aws_launch_template.app.id
+    id      = aws_launch_template.app[0].id
     version = "$Latest"
   }
 
@@ -229,6 +252,7 @@ resource "aws_autoscaling_group" "app" {
 }
 
 resource "aws_autoscaling_attachment" "app" {
-  autoscaling_group_name = aws_autoscaling_group.app.id
-  lb_target_group_arn    = aws_lb_target_group.app.arn
+  count                  = var.enable_application_lab ? 1 : 0
+  autoscaling_group_name = aws_autoscaling_group.app[0].id
+  lb_target_group_arn    = aws_lb_target_group.app[0].arn
 }

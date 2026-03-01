@@ -34,6 +34,12 @@ variable "enable_remote_state_lab" {
   default     = false
 }
 
+variable "enable_application_lab" {
+  type        = bool
+  description = "Enable ALB/ASG application lab resources."
+  default     = false
+}
+
 variable "application_ami_id" {
   type        = string
   description = "AMI ID used by application instances behind the load balancer."
@@ -60,8 +66,20 @@ variable "artifact_bucket_name" {
 
 variable "vpc_name" {
   type        = string
-  description = "Name of the VPC"
-  default     = "cmtr-5bc36296-01-vpc"
+  description = "Name of the VPC to discover"
+  default     = "cmtr-5bc36296-vpc"
+}
+
+variable "public_subnet_name" {
+  type        = string
+  description = "Name of the public subnet to discover"
+  default     = "cmtr-5bc36296-public-subnet-1"
+}
+
+variable "security_group_name" {
+  type        = string
+  description = "Name of the security group to discover"
+  default     = "cmtr-5bc36296-sg"
 }
 
 variable "vpc_cidr_block" {
