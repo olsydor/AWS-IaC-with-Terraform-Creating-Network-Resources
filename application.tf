@@ -205,6 +205,7 @@ resource "aws_autoscaling_group" "app" {
   max_size         = 2
 
   vpc_zone_identifier = [data.aws_subnet.private_a.id, data.aws_subnet.private_b.id]
+  target_group_arns   = [aws_lb_target_group.app.arn]
 
   launch_template {
     id      = aws_launch_template.app.id
