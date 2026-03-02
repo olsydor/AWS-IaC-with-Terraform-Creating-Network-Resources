@@ -1,14 +1,14 @@
+output "vpc_id" {
+  description = "ID of the created VPC"
+  value       = module.network.vpc_id
+}
+
+output "public_subnet_ids" {
+  description = "IDs of created public subnets"
+  value       = module.network.public_subnet_ids
+}
+
 output "alb_dns_name" {
-  description = "DNS name of the blue-green ALB"
-  value       = aws_lb.main.dns_name
-}
-
-output "blue_asg_name" {
-  description = "Blue ASG name"
-  value       = aws_autoscaling_group.blue.name
-}
-
-output "green_asg_name" {
-  description = "Green ASG name"
-  value       = aws_autoscaling_group.green.name
+  description = "DNS name of the application load balancer"
+  value       = module.application.load_balancer_dns_name
 }
