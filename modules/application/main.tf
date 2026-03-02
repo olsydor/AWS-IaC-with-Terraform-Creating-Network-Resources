@@ -38,20 +38,14 @@ resource "aws_launch_template" "app" {
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
-    dnf install -y httpd curl
-    systemctl enable httpd
+    dnf install -y httpd
     systemctl start httpd
-
+    systemctl enable httpd
     COMPUTE_MACHINE_UUID=$(cat /sys/devices/virtual/dmi/id/product_uuid | tr '[:upper:]' '[:lower:]')
     TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-    COMPUTE_INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/instance-id")
-
-    cat > /var/www/html/index.html <<EOF
-    This message was generated on instance $${COMPUTE_INSTANCE_ID} with the following UUID $${COMPUTE_MACHINE_UUID}
-    EOF
-
-    systemctl restart httpd
-  EOT
+    COMPUTE_INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+    echo "This message was generated on instance $${COMPUTE_INSTANCE_ID} with the following UUID $${COMPUTE_MACHINE_UUID}" > /var/www/html/index.html
+    EOT
   )
 
   tags = local.common_tags
@@ -75,8 +69,8 @@ resource "aws_lb_target_group" "app" {
 
   health_check {
     path                = "/"
-    matcher             = "200-399"
-    interval            = 30
+    matcher             = "200"
+    interval            = 10
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -106,7 +100,8 @@ resource "aws_autoscaling_group" "app" {
   vpc_zone_identifier       = var.subnet_ids
   target_group_arns         = [aws_lb_target_group.app.arn]
   health_check_type         = "ELB"
-  health_check_grace_period = 120
+  health_check_grace_period = 300
+  wait_for_elb_capacity     = 2
 
   launch_template {
     id      = aws_launch_template.app.id
