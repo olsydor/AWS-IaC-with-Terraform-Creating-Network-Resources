@@ -26,13 +26,18 @@ resource "aws_launch_template" "app" {
   instance_type = var.instance_type
 
   network_interfaces {
-    security_groups       = [var.ssh_security_group_id, var.private_http_sg_id]
-    delete_on_termination = true
+    associate_public_ip_address = true
+    security_groups             = [var.ssh_security_group_id, var.private_http_sg_id]
+    delete_on_termination       = true
+  }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "optional"
   }
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
-    dnf update -y
     dnf install -y httpd curl
     systemctl enable httpd
     systemctl start httpd
@@ -94,12 +99,14 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_autoscaling_group" "app" {
-  name                = var.autoscaling_group_name
-  desired_capacity    = var.desired_capacity
-  min_size            = var.min_size
-  max_size            = var.max_size
-  vpc_zone_identifier = var.subnet_ids
-  target_group_arns   = [aws_lb_target_group.app.arn]
+  name                      = var.autoscaling_group_name
+  desired_capacity          = var.desired_capacity
+  min_size                  = var.min_size
+  max_size                  = var.max_size
+  vpc_zone_identifier       = var.subnet_ids
+  target_group_arns         = [aws_lb_target_group.app.arn]
+  health_check_type         = "ELB"
+  health_check_grace_period = 120
 
   launch_template {
     id      = aws_launch_template.app.id
