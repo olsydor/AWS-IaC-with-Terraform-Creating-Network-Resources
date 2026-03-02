@@ -20,6 +20,12 @@ resource "aws_vpc_security_group_ingress_rule" "ssh" {
   to_port           = 22
 }
 
+resource "aws_vpc_security_group_egress_rule" "ssh" {
+  security_group_id = aws_security_group.ssh.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+}
+
 resource "aws_security_group" "public_http" {
   name        = var.public_http_sg_name
   description = "Allow public HTTP access"
@@ -42,6 +48,12 @@ resource "aws_vpc_security_group_ingress_rule" "public_http" {
   to_port           = 80
 }
 
+resource "aws_vpc_security_group_egress_rule" "public_http" {
+  security_group_id = aws_security_group.public_http.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+}
+
 resource "aws_security_group" "private_http" {
   name        = var.private_http_sg_name
   description = "Allow private HTTP from public HTTP security group"
@@ -60,4 +72,10 @@ resource "aws_vpc_security_group_ingress_rule" "private_http" {
   from_port                    = 80
   ip_protocol                  = "tcp"
   to_port                      = 80
+}
+
+resource "aws_vpc_security_group_egress_rule" "private_http" {
+  security_group_id = aws_security_group.private_http.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
