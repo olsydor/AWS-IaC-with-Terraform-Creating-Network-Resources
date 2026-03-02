@@ -98,17 +98,7 @@ resource "aws_launch_template" "blue" {
     security_groups             = [data.aws_security_group.ssh.id, data.aws_security_group.http.id]
   }
 
-  user_data = base64encode(<<-EOT
-    #!/bin/bash
-    dnf update -y
-    dnf install -y httpd
-    systemctl enable httpd
-    systemctl start httpd
-    cat > /var/www/html/index.html <<'EOF'
-    <h1>Blue Environment</h1>
-    EOF
-  EOT
-  )
+  user_data = filebase64("${path.module}/start-blue.sh")
 
   tags = local.common_tags
 
@@ -133,17 +123,7 @@ resource "aws_launch_template" "green" {
     security_groups             = [data.aws_security_group.ssh.id, data.aws_security_group.http.id]
   }
 
-  user_data = base64encode(<<-EOT
-    #!/bin/bash
-    dnf update -y
-    dnf install -y httpd
-    systemctl enable httpd
-    systemctl start httpd
-    cat > /var/www/html/index.html <<'EOF'
-    <h1>Green Environment</h1>
-    EOF
-  EOT
-  )
+  user_data = filebase64("${path.module}/start-green.sh")
 
   tags = local.common_tags
 
