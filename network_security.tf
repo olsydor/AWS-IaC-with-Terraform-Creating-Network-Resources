@@ -1,4 +1,4 @@
-﻿# SSH Security Group
+# SSH Security Group
 resource "aws_security_group" "ssh_sg" {
   name        = "cmtr-5bc36296-ssh-sg"
   description = "Allow SSH from allowed IP range"
