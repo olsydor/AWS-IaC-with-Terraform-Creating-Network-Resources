@@ -94,31 +94,31 @@ variable "ssh_key" {
 }
 
 variable "allowed_ip_range" {
-  type        = list(string)
   description = "List of IP address ranges allowed for secure access."
+  type        = list(string)
 }
 
 variable "vpc_id" {
-  type        = string
   description = "ID of the pre-created VPC."
+  type        = string
 }
 
 variable "public_subnet_id" {
-  type        = string
   description = "ID of the pre-created public subnet."
+  type        = string
 }
 
 variable "private_subnet_id" {
-  type        = string
   description = "ID of the pre-created private subnet."
+  type        = string
 }
 
 variable "public_instance_id" {
-  type        = string
   description = "ID of the pre-created public EC2 instance."
+  type        = string
 }
 
 variable "private_instance_id" {
-  type        = string
   description = "ID of the pre-created private EC2 instance."
+  type        = string
 }
