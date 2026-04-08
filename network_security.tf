@@ -1,130 +1,132 @@
-data "aws_network_interface" "public_primary" {
-  filter {
-    name   = "attachment.instance-id"
-    values = [var.public_instance_id]
-  }
-
-  filter {
-    name   = "attachment.device-index"
-    values = ["0"]
-  }
-}
-
-data "aws_network_interface" "private_primary" {
-  filter {
-    name   = "attachment.instance-id"
-    values = [var.private_instance_id]
-  }
-
-  filter {
-    name   = "attachment.device-index"
-    values = ["0"]
-  }
-}
-
-resource "aws_security_group" "ssh" {
+# SSH Security Group
+resource "aws_security_group" "ssh_sg" {
   name        = "cmtr-5bc36296-ssh-sg"
-  description = "SSH and ICMP access from allowed IP ranges"
+  description = "Allow SSH from allowed IP range"
   vpc_id      = var.vpc_id
 
+  ingress {
+    description = "Allow SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  ingress {
+    description = "Allow ICMP"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name    = "cmtr-5bc36296-ssh-sg"
     Project = "cmtr-5bc36296"
   }
 }
 
-resource "aws_security_group_rule" "ssh_ingress_ssh" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.ssh.id
-}
-
-resource "aws_security_group_rule" "ssh_ingress_icmp" {
-  type              = "ingress"
-  from_port         = -1
-  to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.ssh.id
-}
-
-resource "aws_security_group" "public_http" {
+# Public HTTP Security Group
+resource "aws_security_group" "public_http_sg" {
   name        = "cmtr-5bc36296-public-http-sg"
-  description = "Public HTTP and ICMP access from allowed IP ranges"
+  description = "Allow HTTP from allowed IP range"
   vpc_id      = var.vpc_id
 
+  ingress {
+    description = "Allow HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  ingress {
+    description = "Allow ICMP"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name    = "cmtr-5bc36296-public-http-sg"
     Project = "cmtr-5bc36296"
   }
 }
 
-resource "aws_security_group_rule" "public_http_ingress_http" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.public_http.id
-}
-
-resource "aws_security_group_rule" "public_http_ingress_icmp" {
-  type              = "ingress"
-  from_port         = -1
-  to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.public_http.id
-}
-
-resource "aws_security_group" "private_http" {
+# Private HTTP Security Group
+resource "aws_security_group" "private_http_sg" {
   name        = "cmtr-5bc36296-private-http-sg"
-  description = "Private HTTP and ICMP access from the public HTTP security group"
+  description = "Allow HTTP and ICMP from Public HTTP Security Group"
   vpc_id      = var.vpc_id
 
+  ingress {
+    description     = "Allow HTTP from Public SG"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.public_http_sg.id]
+  }
+
+  ingress {
+    description     = "Allow ICMP from Public SG"
+    from_port       = -1
+    to_port         = -1
+    protocol        = "icmp"
+    security_groups = [aws_security_group.public_http_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name    = "cmtr-5bc36296-private-http-sg"
     Project = "cmtr-5bc36296"
   }
 }
 
-resource "aws_security_group_rule" "private_http_ingress_http_from_public_http_sg" {
-  type                     = "ingress"
-  from_port                = 8080
-  to_port                  = 8080
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.public_http.id
-  security_group_id        = aws_security_group.private_http.id
+# Get network interfaces for the preexisting instances
+data "aws_instance" "public_instance" {
+  instance_id = var.public_instance_id
 }
 
-resource "aws_security_group_rule" "private_http_ingress_icmp_from_public_http_sg" {
-  type                     = "ingress"
-  from_port                = -1
-  to_port                  = -1
-  protocol                 = "icmp"
-  source_security_group_id = aws_security_group.public_http.id
-  security_group_id        = aws_security_group.private_http.id
+data "aws_instance" "private_instance" {
+  instance_id = var.private_instance_id
 }
 
-resource "aws_network_interface_sg_attachment" "public_instance_ssh" {
-  security_group_id    = aws_security_group.ssh.id
-  network_interface_id = data.aws_network_interface.public_primary.id
+# Attach SG to Public Instance
+resource "aws_network_interface_sg_attachment" "public_ssh_attachment" {
+  security_group_id    = aws_security_group.ssh_sg.id
+  network_interface_id = data.aws_instance.public_instance.network_interface_id
 }
 
-resource "aws_network_interface_sg_attachment" "public_instance_public_http" {
-  security_group_id    = aws_security_group.public_http.id
-  network_interface_id = data.aws_network_interface.public_primary.id
+resource "aws_network_interface_sg_attachment" "public_http_attachment" {
+  security_group_id    = aws_security_group.public_http_sg.id
+  network_interface_id = data.aws_instance.public_instance.network_interface_id
 }
 
-resource "aws_network_interface_sg_attachment" "private_instance_ssh" {
-  security_group_id    = aws_security_group.ssh.id
-  network_interface_id = data.aws_network_interface.private_primary.id
+# Attach SG to Private Instance
+resource "aws_network_interface_sg_attachment" "private_ssh_attachment" {
+  security_group_id    = aws_security_group.ssh_sg.id
+  network_interface_id = data.aws_instance.private_instance.network_interface_id
 }
 
-resource "aws_network_interface_sg_attachment" "private_instance_private_http" {
-  security_group_id    = aws_security_group.private_http.id
-  network_interface_id = data.aws_network_interface.private_primary.id
+resource "aws_network_interface_sg_attachment" "private_http_attachment" {
+  security_group_id    = aws_security_group.private_http_sg.id
+  network_interface_id = data.aws_instance.private_instance.network_interface_id
 }
