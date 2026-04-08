@@ -14,6 +14,9 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 
+# Allow terraform.tfvars to be tracked for lab/task verification
+!terraform.tfvars
+
 # Ignore override files, as they are usually used to override resources locally
 override.tf
 override.tf.json
