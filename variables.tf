@@ -1,4 +1,4 @@
-variable "aws_region" {
+﻿variable "aws_region" {
   type        = string
   description = "AWS region where resources will be created"
   default     = "us-east-1"
@@ -86,6 +86,7 @@ variable "enable_public_ip_on_launch" {
   description = "Enable automatic public IP assignment for instances launched in public subnets"
   default     = true
 }
+
 variable "ssh_key" {
   type        = string
   description = "Provides custom public SSH key."

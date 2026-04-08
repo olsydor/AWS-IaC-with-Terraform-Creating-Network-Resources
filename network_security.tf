@@ -1,4 +1,4 @@
-# SSH Security Group
+﻿# SSH Security Group
 resource "aws_security_group" "ssh_sg" {
   name        = "cmtr-5bc36296-ssh-sg"
   description = "Allow SSH from allowed IP range"
@@ -100,15 +100,6 @@ resource "aws_security_group" "private_http_sg" {
   }
 }
 
-# Get network interfaces for the preexisting instances
-data "aws_instance" "public_instance" {
-  instance_id = var.public_instance_id
-}
-
-data "aws_instance" "private_instance" {
-  instance_id = var.private_instance_id
-}
-
 # Attach SG to Public Instance
 resource "aws_network_interface_sg_attachment" "public_ssh_attachment" {
   security_group_id    = aws_security_group.ssh_sg.id
@@ -129,4 +120,13 @@ resource "aws_network_interface_sg_attachment" "private_ssh_attachment" {
 resource "aws_network_interface_sg_attachment" "private_http_attachment" {
   security_group_id    = aws_security_group.private_http_sg.id
   network_interface_id = data.aws_instance.private_instance.network_interface_id
+}
+
+# Get network interfaces for the preexisting instances
+data "aws_instance" "public_instance" {
+  instance_id = var.public_instance_id
+}
+
+data "aws_instance" "private_instance" {
+  instance_id = var.private_instance_id
 }
