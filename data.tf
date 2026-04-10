@@ -4,6 +4,8 @@
 
 # Discover existing VPC by Name tag
 data "aws_vpc" "main" {
+  count = var.enable_legacy_resources ? 1 : 0
+
   filter {
     name   = "tag:Name"
     values = [var.vpc_name]
@@ -12,6 +14,8 @@ data "aws_vpc" "main" {
 
 # Discover existing public subnet by Name tag
 data "aws_subnet" "public" {
+  count = var.enable_legacy_resources ? 1 : 0
+
   filter {
     name   = "tag:Name"
     values = [var.public_subnet_name]
@@ -19,12 +23,14 @@ data "aws_subnet" "public" {
 
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.main.id]
+    values = [data.aws_vpc.main[0].id]
   }
 }
 
 # Discover existing security group by Name tag
 data "aws_security_group" "main" {
+  count = var.enable_legacy_resources ? 1 : 0
+
   filter {
     name   = "tag:Name"
     values = [var.security_group_name]
@@ -32,12 +38,13 @@ data "aws_security_group" "main" {
 
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.main.id]
+    values = [data.aws_vpc.main[0].id]
   }
 }
 
 # Discover the latest Amazon Linux 2023 AMI
 data "aws_ami" "amazon_linux" {
+  count       = var.enable_legacy_resources ? 1 : 0
   most_recent = true
   owners      = ["amazon"]
 
