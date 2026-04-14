@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.5.7"
 
   backend "s3" {
-    bucket = "cmtr-5bc36296-backend-203918888326-1776163315"
+    bucket = "cmtr-5bc36296-backend-new-bucket-1776160496"
     key    = "tf_code.tfstate"
     region = "us-east-1"
   }
