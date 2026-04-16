@@ -7,5 +7,5 @@ resource "aws_iam_policy" "imported" {
   description = data.aws_iam_policy.existing.description
   path        = data.aws_iam_policy.existing.path
   policy      = data.aws_iam_policy.existing.policy
-  tags        = data.aws_iam_policy.existing.tags
+  tags        = try(data.aws_iam_policy.existing.tags, {})
 }
