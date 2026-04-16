@@ -1,21 +1,11 @@
-resource "aws_iam_policy" "custom_policy" {
-  name = "custom_policy"
+data "aws_iam_policy" "existing" {
+  name = "cmtr-5bc36296-iam-policy"
+}
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-
-  lifecycle {
-    ignore_changes = all
-  }
+resource "aws_iam_policy" "imported" {
+  name        = data.aws_iam_policy.existing.name
+  description = data.aws_iam_policy.existing.description
+  path        = data.aws_iam_policy.existing.path
+  policy      = data.aws_iam_policy.existing.policy
+  tags        = try(data.aws_iam_policy.existing.tags, {})
 }
