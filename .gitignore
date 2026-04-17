@@ -14,6 +14,9 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 
+# But track the root terraform.tfvars needed for this project
+!terraform.tfvars
+
 # Ignore override files, as they are usually used to override resources locally
 override.tf
 override.tf.json
